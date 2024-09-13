@@ -80,9 +80,10 @@ Next you will have to set up the wrangler cli, so that you can connect to your c
 - Encrypt all the variables after adding then save and deploy
 
 - Now, start the local server with the command `npm start`- make sure it is running on port `8787`
-- Go to `cloudflare > workers-pages > copy the url under preview which endswith '.workers.dev' `
+- Go to `cloudflare > workers-pages > overview > click on 'Visit' and it will redirects to the url which ends with '.workers.dev'`
+- Bot server URL e.g : `https://discord-slash-commands.XYZ.workers.dev`
 - Now, go to [Discord Developer Portal](https://discord.com/developers/applications) and select your bot
-  - In the General Information, paste the url in the `INTERACTIONS ENDPOINT URL` field.
+- In the General Information, paste the url in the `INTERACTIONS ENDPOINT URL` field.
 
 To verify if your bot is working:
 
@@ -106,24 +107,25 @@ Now to setup discord in `rds-backend`
  }
 
  botToken: {
-   botPublicKey: "<botPublicKey>", ( go to development in config folder and follow the same format to add keys)
+   botPublicKey: "<botPublicKey>", ( go to development in config folder and follow the same format to add keys - formatted using \n)
  },
 
 
  rdsServerlessBot: {
-   rdsServerLessPrivateKey: "<RDS_SERVERLESS_PRIVATE_KEY>", ( go to development in config folder and follow the same format to add keys)
+   rdsServerLessPrivateKey: "<RDS_SERVERLESS_PRIVATE_KEY>", ( go to development in config folder and follow the same format to add keys - formatted using \n)
    ttl: 60,
  },
+
 ```
 
 - Start the rds backend
 - Open another terminal and type in the command `npx ngrok http <port backend running on>`.
 - `ngrok` creates a secure tunnel that allows a local server to connect to external clients. It provides a URL that can be used to connect to a local server, just like if it were a public server hosted somewhere. For eg: Say you're running your app on `http://127.0.0.1:5501/` i.e localhost port 5501. Any external applications cannot connect to this server by default, but `ngrok` will give you a `http(s)` URL that any other client can use to connect to this server.
+- Web Interface: http://127.0.0.1:4040: This is generated along with HTTPS url to identify what data is being sent through discord server in HTTP request.
 - copy the `https` URL
 
 - Also update the `local Url` of backend with `https` url given by ngrok
 
-- Go to `constants.js` in discord-slash-commands
 - Go to `src/constants/urls.ts`
 - Change the `RDS_BASE_DEVELOPMENT_API_URL`,`RDS_BASE_STAGING_API_URL` and `RDS_BASE_API_URL ` to the `ngrok https` URL generated for rds backend
 - run `npm run deploy`
@@ -134,8 +136,17 @@ Now, go to [Discord Developer Portal](https://discord.com/developers/application
 
 To check this, try running '/verify' command in your discord
 
-If you want to add discordId to your user data then run (website-my)[https://github.com/Real-Dev-Squad/website-my] along with it to access the link after `/verify` command
+To add/update existing command and reflect those changes in discord server: run `npm run register` and `npm run deploy`
+
+If you want to add discordId to your user data then run (website-my)[https://github.com/Real-Dev-Squad/website-my] along with it to access the link (http://localhost:3443) after `/verify` command which will redirect the user to website-my locally.
 
 (Note:`if it doesn't run , try running the command almost three to four times.`)
+(Note:`verify every (private and public key set) for botPublicKey / botPrivateKey & rdsServerLessPublicKey / rdsServerLessPrivateKey while connecting discord-slash-command with website-backend.`)
+
+## Github authentication and user creation in rds-backend
+
+To register the user in rds-backend, pass this URL(`http://<HOSTNAME>:<PORT>/auth/github/callback`) to authenticate with GITHUB locally. If it gives error , then cross check ‘clientId’, ‘clientSecret’ and firestore-private-key.json in local.js. After successfull authentication it will create the user in the firestore db.
+
+Run `http://<HOSTNAME>:<PORT>/users/self` on browser and it will display the user data and user collection will be visible in firestore database.
 
 Now you are ready to contribute to the Repository.
